@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="bootstrap-4.0.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="add.css" />
+    <link rel="stylesheet" href="kartik-v-bootstrap-fileinput-b5c7efe/css/fileinput.min.css" />
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+    <script src="bootstrap-4.0.0/dist/js/bootstrap.min.js"></script>
+    <script src="kartik-v-bootstrap-fileinput-b5c7efe/js/fileinput.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.4.9/css/fileinput.min.css" media="all" rel="stylesheet"
+        type="text/css" />
+
+</head>
+
+
+<body>
+    <div class="btn-group btn-group-toggle d-flex justify-content-center" data-toggle="buttons">
+        <label class="btn btn-secondary active" data-page="loadfile">
+            <input type="radio" name="loadfile" id="loadfile" autocomplete="off" checked/> Charger un fichier
+        </label>
+        <label class="btn btn-secondary" data-page="writetemplate">
+            <input type="radio" name="writetemplate" id="writetemplate" autocomplete="off" /> Écrire un template
+        </label>
+        <label class="btn btn-secondary" data-page="filltemplate">
+            <input type="radio" name="filluptemplate" id="filluptemplate" autocomplete="off" /> Remplir un formulaire de template
+        </label>
+    </div>
+    <br>
+    <div class="container" id="containeradd">
+    </div>
+</body>
+
+
+<script>
+    $('div.btn-group label').each((i, item) => {
+        if ($(item).attr('data-page')) {
+            $(item).on('click', (element) => {
+                $('#containeradd').load($(element.target).attr('data-page') + '.html');
+            });
+        }
+    });
+    $('#containeradd').load('loadfile.html');
+</script>
+
+</html>

@@ -1,0 +1,9 @@
+version: '3'
+services:
+    template:
+      image: tutum/hello-world
+      ports:
+      - ":80"
+      deploy:
+        replicas: 3
+

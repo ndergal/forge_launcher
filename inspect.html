@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="bootstrap-4.0.0/dist/css/bootstrap.min.css" />
+  <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+  <script src="bootstrap-4.0.0/dist/js/bootstrap.min.js"></script>
+</head>
+
+
+
+<body>
+  <div>
+    <font color=#00ccff style="font-family:Arial, Helvetica, sans-serif"> Voici les forges en cours d'execution : </font>
+    <br>
+    <div id="bodyplace">
+    </div>
+    <br>
+    <div id="textzone">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Host</th>
+            <th scope="col">Ports</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</body>
+
+<script> 
+  var services = {}
+  var set = new Set();
+  function bodyplace() {
+    place = document.getElementById("bodyplace");
+    for (e in services) {
+      bouton = document.createElement("input");
+      bouton.id = e;
+      bouton.type = "button";
+      bouton.value = e;
+      bouton.onclick = function (e) {
+        $('#tbody').html("");
+        services[this.id].forEach(data => {
+          if (data.Ports != undefined) {
+            name = data.Name;
+            host = data.Hostname;
+            ports = data.Ports;
+            $('#tbody').append("<tr><td>" + name + "</td><td>" + host + "</td><td>" + JSON.stringify(ports) + " </td></tr>")
+          } else {
+            name = data.Name;
+            host = data.Hostname;
+            $('#tbody').append("<tr><td>" + name + "</td><td>" + host + "</td></tr>")
+          }
+
+        })
+      };
+      place.appendChild(bouton);
+      $("#" + bouton.id).addClass("btn btn-outline-primary");
+    }
+  }
+  var ajax = new XMLHttpRequest();
+  ajax.onreadystatechange = function () {
+    if (ajax.readyState != 4) {
+      return;
+    }
+    if (ajax.status != 200) {
+      console.log(ajax.status);
+    } else {
+      let set = new Set();
+      let json = JSON.parse(ajax.responseText);
+      json.forEach(element => {
+        services[element.ServiceNamespace] = [];
+      });
+      json.forEach(element => {
+        let namespace = element.ServiceNamespace;
+        delete element.ServiceNamespace;
+        services[namespace].push(element);
+      });
+      bodyplace();
+    }
+  };
+  ajax.open("GET", "http://localhost:3000/forges/running", true);
+  ajax.setRequestHeader('Access-Control-Allow-Origin', '*')
+  ajax.overrideMimeType("application/json");
+  ajax.send();
+</script>
+
+</html>

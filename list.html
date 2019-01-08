@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="bootstrap-4.0.0/dist/css/bootstrap.min.css" />
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+    <script src="bootstrap-4.0.0/dist/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div id="bodyplace">
+        <font color=#00ccff style="font-family:Arial, Helvetica, sans-serif"> Voici les templates de forge disponible :</font>
+    </div>
+    <div id="textzone">
+
+    </div>
+    <div id="jsonbutton">
+    </div>
+</body>
+
+
+
+
+<script> 
+
+
+    function textzone(id) {
+        var ajax = new XMLHttpRequest();
+        ajax.onreadystatechange = function () {
+            if (ajax.readyState != 4) {
+                return;
+            }
+            if (ajax.status != 200) {
+                console.log("error " + ajax.status);
+                document.getElementById("textzone").innerHTML = "<textarea class='form-control' id='message' name='message' rows='10' readonly> error status : " + ajax.status + " " + ajax.responseText + "</textarea>";
+            } else {
+                document.getElementById("textzone").innerHTML = "<textarea class='form-control' id='message' name='message' rows='10' readonly>" + ajax.responseText + "</textarea>";
+            }
+        };
+        ajax.open("GET", "http://localhost:3000/forge/json/" + id, true);
+        ajax.setRequestHeader('Access-Control-Allow-Origin', '*')
+        ajax.overrideMimeType("application/json");
+        ajax.send();
+
+    };
+    var ajax = new XMLHttpRequest();
+    ajax.onreadystatechange = function () {
+        if (ajax.readyState != 4) {
+            return;
+        }
+        if (ajax.status != 200) {
+            console.log("error " + ajax.status);
+        } else {
+            let resp = JSON.parse(ajax.responseText)
+            place = document.getElementById("bodyplace");
+            for (e in resp.forges) {
+                bouton = document.createElement("input");
+                bouton.id = e;
+                bouton.type = "button";
+                bouton.value = e;
+                bouton.onclick = function (e) {
+                    document.getElementById("textzone").innerHTML = "<textarea class='form-control' id='message' name='message' rows='10' readonly>" + resp.forges[this.id] + "</textarea>";
+                    document.getElementById("jsonbutton").innerHTML = `<input id='${this.id}json' type='button' value='Transformer ${this.id} en JSON' class='btn btn-outline-primary' onclick=\"textzone(\'${this.id}\');\"/>`;
+                };
+                place.appendChild(bouton);
+                $("#" + bouton.id).addClass("btn btn-outline-primary");
+            }
+        }
+    };
+    ajax.open("GET", "http://localhost:3000/forges/list", true);
+    ajax.setRequestHeader('Access-Control-Allow-Origin', '*')
+    ajax.overrideMimeType("application/json");
+    ajax.send();
+
+</script>
+
+</html>

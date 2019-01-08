@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="bootstrap-4.0.0/dist/css/bootstrap.min.css" />
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+    <script src="bootstrap-4.0.0/dist/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div id="bodyplace">
+        <font color=#00ccff style="font-family:Arial, Helvetica, sans-serif"> Voici les templates de forge déjà existants : </font>
+        <br>
+        <div id='buttonplace'>
+
+        </div>
+        <font color=#00ccff style="font-family:Arial, Helvetica, sans-serif"> Saisissez votre Compose file version 3 : </font>
+        <br>
+        <a href="https://docs.docker.com/compose/compose-file/"> Lien vers la documentation des Compose File v3</a>
+        <br>
+        <form enctype="multipart/form-data">
+            <textarea class='form-control' id='composefile' name='composefile' rows='10' />
+            <div class="name d-flex justify-content-center">
+                <label for="name">Nom de la forge à créer :</label>
+                <input name="name" type="text" required minlength="4" placeholder="4 caractères minimum" />
+                <span class="validity"></span>
+            </div>
+            <div class="d-flex justify-content-center">
+                <input type="button" value="Envoyer" />
+            </div>
+        </form>
+    </div>
+</body>
+
+
+
+
+<script> 
+    $(':button').on('click', function () {
+        $(':button').attr('disabled', 'disabled');
+        var ajax = new XMLHttpRequest();
+        let formdata = new FormData($('form')[0])
+        if (formdata.get("name").length < 4) {
+            alert("Le nom doit contenir au minimum quatres caractères.")
+            return;
+        }
+        if (/^[a-zA-Z0-9_]*$/.test(formdata.get("name")) == false) {
+            alert("Le nom ne doit pas contenir de caractères spéciaux.")
+            return;
+        }
+        if (formdata.get("file") == "") {
+            alert("Veuillez selectionner un fichier.");
+            return;
+        }
+        ajax.onreadystatechange = function () {
+            if (ajax.readyState != 4) {
+                return;
+            }
+            if (ajax.status != 200) {
+                console.log("error " + ajax.status);
+            } else {
+                //document.getElementById("bodyplace").innerText = ajax.responseText;
+                alert("Réponse du serveur de dépôt : " + ajax.responseText);
+                console.log(ajax.responseText);
+            }
+            $(':button').removeAttr('disabled');
+            $('#containeradd').load('writetemplate.html');
+        }
+        ajax.open("POST", "http://localhost:3000/forge/add/" + formdata.get("name"), true);
+        ajax.setRequestHeader('Access-Control-Allow-Origin', '*')
+        ajax.overrideMimeType("text/plain");
+        ajax.setRequestHeader("Content-Type", "text/plain");
+        ajax.send(document.getElementById("composefile").value);
+    });
+
+    var ajax = new XMLHttpRequest();
+    ajax.onreadystatechange = function () {
+        if (ajax.readyState != 4) {
+            return;
+        }
+        if (ajax.status != 200) {
+            console.log("error " + ajax.status);
+        } else {
+            let resp = JSON.parse(ajax.responseText)
+            place = document.getElementById("buttonplace");
+            for (e in resp.forges) {
+                bouton = document.createElement("input");
+                bouton.id = e;
+                bouton.type = "button";
+                bouton.value = e;
+                bouton.onclick = function (e) {
+                    document.getElementById("composefile").value = resp.forges[this.id];
+                };
+                place.appendChild(bouton);
+                $("#" + bouton.id).addClass("btn btn-outline-primary");
+            }
+        }
+    };
+    ajax.open("GET", "http://localhost:3000/forges/list", true);
+    ajax.setRequestHeader('Access-Control-Allow-Origin', '*')
+    ajax.overrideMimeType("application/json");
+    ajax.send();
+
+</script>
+
+</html>
